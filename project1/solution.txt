@@ -3,7 +3,9 @@
 +---------------------------+
 | Project 1 - SQL           |
 +---------------------------+ 
-| David Skrenta             | 
+| David Skrenta             |
++---------------------------+
+| Bryce Desbrisay           | 
 +---------------------------+
 
 1. List all the information in the Offices table. (7)
@@ -197,7 +199,7 @@ ContactDate (DATE) and OrderTotal (a decimal number with 9 digits in total havin
 None of these columns can be NULL. Include a PRIMARY KEY constraint named “TopCustomer_PK” on
 CustomerNumber. (no answer set)
 
-create table TopCustomers (
+mysql> create table TopCustomers (
     customerNumber int, 
     contractDate date, 
     orderTotal decimal(9),
@@ -208,26 +210,50 @@ create table TopCustomers (
 value of all their orders (PriceEach * quantityOrdered) for those customers whose order total value is
 greater than $150,000. (inserted 7 rows, no answer set)
 
-insert into TopCustomers (customerNumber, contractDate, orderTotal) select * from 
-// customers whose order total is greater than 150,000
-
+mysql> insert into TopCustomers (customerNumber, contractDate, orderTotal)
+select customerNumber, now() as currentDate, totalValue from (select x.customerNumber, sum(x.totalValue) as totalValue from (select customerNumber, (orderdetails.priceEach * orderdetails.quantityOrdered) as totalValue from orderdetails join orders on orders.orderNumber = orderdetails.orderNumber) as x group by x.customerNumber) as y where y.totalValue > 150000;
 
 17. List the contents of the TopCustomers table in descending OrderTotal sequence. (7)
 
-select * from TopCustomers order by orderTotal desc;
+mysql> select * from TopCustomers order by orderTotal desc;
++----------------+--------------+------------+
+| customerNumber | contractDate | orderTotal |
++----------------+--------------+------------+
+|            141 | 2018-10-28   |     820690 |
+|            124 | 2018-10-28   |     591827 |
+|            114 | 2018-10-28   |     180585 |
+|            151 | 2018-10-28   |     177914 |
+|            119 | 2018-10-28   |     158573 |
+|            148 | 2018-10-28   |     156251 |
+|            323 | 2018-10-28   |     154622 |
++----------------+--------------+------------+
+7 rows in set (0.00 sec)
 
 18. Add a new column to the TopCustomers table called OrderCount (integer). (No answer set)
 
-alter table TopCustomers
-add OrderCount int;
+mysql> alter table TopCustomers add OrderCount int;
 
 19. Update the Top Customers table, setting the OrderCount column to a random number (from 0 to 20). 
 (Should update 7 rows) HINT: use the RAND() and FLOOR() functions.
 
+mysql> update TopCustomers set OrderCount = floor(rand() * (20-0+1)+0);
+
 20. List the contents of the TopCustomers table in descending OrderCount sequence. (7)
 
-select * from TopCustomers order by OrderCount desc;
+mysql> select * from TopCustomers order by OrderCount desc;
++----------------+--------------+------------+------------+
+| customerNumber | contractDate | orderTotal | OrderCount |
++----------------+--------------+------------+------------+
+|            151 | 2018-10-28   |     177914 |         18 |
+|            119 | 2018-10-28   |     158573 |         16 |
+|            141 | 2018-10-28   |     820690 |         14 |
+|            114 | 2018-10-28   |     180585 |         13 |
+|            148 | 2018-10-28   |     156251 |          8 |
+|            323 | 2018-10-28   |     154622 |          5 |
+|            124 | 2018-10-28   |     591827 |          0 |
++----------------+--------------+------------+------------+
+7 rows in set (0.01 sec)
 
 21. Drop the TopCustomers table. (no answer set) 
 
-drop TopCustomers;
+mysql> drop table TopCustomers;
